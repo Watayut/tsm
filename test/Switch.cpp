@@ -18,8 +18,8 @@ struct Switch : Hsm<Switch>
     {
         setStartState(&off);
 
-        add(on, toggle, off, &Switch::onToggle);
-        add(off, toggle, on, &Switch::onToggle);
+        add(on, toggle, off, [&]{onToggle();});
+        add(off, toggle, on, [&]{onToggle();});
     }
 
     uint32_t getToggles() const { return nToggles_; }

@@ -43,7 +43,7 @@ struct CdPlayerHsm : public Hsm<CdPlayerHsm<ControllerType>>
             IHsm::setStartState(&Song1);
 
             // clang-format off
-            add(Song1, next_song, Song2, &PlayingHsm::PlaySong, &PlayingHsm::PlaySongGuard);
+            add(Song1, next_song, Song2, [&]{PlaySong();}, [&]{return PlaySongGuard();});
             // clang-format on
             add(Song2, next_song, Song3);
             add(Song3, prev_song, Song2);
@@ -138,7 +138,7 @@ struct ErrorHsm : public Hsm<ErrorHsm>
 
         add(AllOk, error, ErrorMode);
         // Potentially transition to a recovery Hsm
-        add(ErrorMode, recover, AllOk, &ErrorHsm::recovery);
+        add(ErrorMode, recover, AllOk, [&]{recovery();});
     }
 
     // States

@@ -1,19 +1,18 @@
 #pragma once
-#ifndef CALL_MEMBER_FN
-#define CALL_MEMBER_FN(object, ptrToMember) ((object)->*(ptrToMember))()
-#endif
 #include "Event.h"
 #include "State.h"
 
 #include <set>
+#include <functional>
 #include <unordered_map>
 namespace tsm {
+    
+using ActionFn = std::function<void ()>;
+using GuardFn = std::function<bool ()>;
 
 template<typename FsmDef>
 struct StateTransitionTableT
 {
-    using ActionFn = void (FsmDef::*)();
-    using GuardFn = bool (FsmDef::*)();
 
     struct Transition
     {
@@ -28,7 +27,7 @@ struct StateTransitionTableT
             bool transitioned = false;
 
             // Evaluate guard if it exists
-            bool result = guard && CALL_MEMBER_FN(hsm, guard);
+            bool result = guard && guard();
 
             if (!guard || result) {
                 // Perform entry and exit actions in the doTransition function.
@@ -37,7 +36,7 @@ struct StateTransitionTableT
 
                 hsm->getCurrentState()->onExit(e);
                 if (action) {
-                    CALL_MEMBER_FN(hsm, action);
+                    action();
                 }
                 hsm->setCurrentState(&toState);
                 this->toState.onEntry(e);

@@ -89,8 +89,6 @@ struct Hsm : public IHsm
 {
     using StateTransitionTable = StateTransitionTableT<HsmDef>;
     using Transition = typename StateTransitionTableT<HsmDef>::Transition;
-    using ActionFn = void (HsmDef::*)();
-    using GuardFn = bool (HsmDef::*)();
 
     explicit Hsm(IHsm* parent = nullptr)
       : IHsm(parent)
