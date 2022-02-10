@@ -101,15 +101,21 @@ struct Hsm : public IHsm
         Transition* t = this->next(*this->currentState_, nextEvent);
 
         if (!t) {
-            // If transition does not exist, pass event to parent Hsm
-            if (this->getParent() != nullptr) {
-                // TODO(sriram) : should call onExit? UML spec *seems* to say
-                // yes! invoking onExit() here will not work for Orthogonal
-                // state machines this->onExit(nextEvent);
-                this->getParent()->handle(nextEvent);
-            } else {
-                LOG(ERROR) << "Reached top level Hsm. Cannot handle event";
+            
+            bool consumed = this->getCurrentState()->execute(nextEvent);
+
+            if(!consumed) {
+                // If transition does not exist, pass event to parent Hsm
+                if (this->getParent() != nullptr) {
+                    // TODO(sriram) : should call onExit? UML spec *seems* to say
+                    // yes! invoking onExit() here will not work for Orthogonal
+                    // state machines this->onExit(nextEvent);
+                    this->getParent()->handle(nextEvent);
+                } else {
+                    LOG(ERROR) << "Reached top level Hsm. Cannot handle event";
+                }
             }
+
         } else {
 
             // Perform entry and exit actions in the doTransition function.

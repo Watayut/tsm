@@ -50,25 +50,6 @@ struct StateTransitionTableT
         GuardFn guard;
     };
 
-    struct InternalTransition : public Transition
-    {
-        InternalTransition(ActionFn action, GuardFn guard)
-          : Transition(action, guard)
-        {}
-
-        template<typename HsmType>
-        void doTransition(HsmType* hsm)
-        {
-            // Evaluate guard if it exists
-            bool result = this->guard && CALL_MEMBER_FN(hsm, this->guard);
-            if (!(this->guard) || result) {
-                if (this->action) {
-                    CALL_MEMBER_FN(hsm, this->action);
-                }
-            }
-        }
-    };
-
     using StateEventPair = std::pair<State&, Event>;
     struct HashStateEventPair
     {

@@ -33,9 +33,13 @@ struct State
         return os;
     }
 
-    virtual void execute(Event const& /*e*/)
+    virtual bool execute(Event const& /*e*/)
     {
+        bool consumed = false;
+
         LOG(INFO) << "Executing: " << this->id << std::endl;
+
+        return consumed;
     }
 
     virtual void onEntry(Event const& /*unused*/)
@@ -69,9 +73,13 @@ struct NamedState : public State
     }
     bool operator!=(NamedState& rhs) { return !(*this == rhs); }
 
-    void execute(Event const& /*unused*/) override
+    bool execute(Event const& /*unused*/) override
     {
+        bool comsumed = false;
+
         LOG(INFO) << "Executing: " << this->name << std::endl;
+
+        return comsumed;
     }
 
     void onEntry(Event const& /*unused*/) override
