@@ -12,18 +12,27 @@ using tsm::LoggingPolicy;
 using tsm::SingleThreadedHsm;
 
 namespace tsmtest {
+
+using tsm::ActionFn;
+using tsm::GuardFn;
+
 struct Switch : Hsm<Switch>
 {
     Switch()
     {
         setStartState(&off);
 
-        add(on, toggle, off, [&]{onToggle();});
-        add(off, toggle, on, [&]{onToggle();});
+        add(on, toggle, off, onToggle);
+        add(off, toggle, on, onToggle);
     }
 
     uint32_t getToggles() const { return nToggles_; }
-    void onToggle() { nToggles_++; LOG(INFO) << nToggles_; }
+    ActionFn onToggle = [&](auto& e)
+    {
+        (void)e;
+        
+        nToggles_++; LOG(INFO) << nToggles_;
+    };
 
     State on, off;
     Event toggle;

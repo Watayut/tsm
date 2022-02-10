@@ -8,6 +8,8 @@ using tsm::Event;
 using tsm::Hsm;
 using tsm::IHsm;
 using tsm::State;
+using tsm::ActionFn;
+using tsm::GuardFn;
 
 struct CdPlayerController
 {
@@ -43,7 +45,7 @@ struct CdPlayerHsm : public Hsm<CdPlayerHsm<ControllerType>>
             IHsm::setStartState(&Song1);
 
             // clang-format off
-            add(Song1, next_song, Song2, [&]{PlaySong();}, [&]{return PlaySongGuard();});
+            add(Song1, next_song, Song2, PlaySong, PlaySongGuard);
             // clang-format on
             add(Song2, next_song, Song3);
             add(Song3, prev_song, Song2);
@@ -57,18 +59,22 @@ struct CdPlayerHsm : public Hsm<CdPlayerHsm<ControllerType>>
         Event next_song, prev_song;
 
         // Actions
-        void PlaySong()
+        ActionFn PlaySong = [&](auto& e)
         {
+            (void)e;
+
             LOG(INFO) << "Play Song";
             controller_.playSong("Dummy");
-        }
+        };
 
         // Guards
-        bool PlaySongGuard()
+        GuardFn PlaySongGuard = [&](auto& e)
         {
+            (void)e;
+            
             LOG(INFO) << "Play Song Guard";
             return true;
-        }
+        };
 
         // If the event is a pause, stay on the song that is playing. For all
         // other events, go back to the start state
@@ -138,7 +144,7 @@ struct ErrorHsm : public Hsm<ErrorHsm>
 
         add(AllOk, error, ErrorMode);
         // Potentially transition to a recovery Hsm
-        add(ErrorMode, recover, AllOk, [&]{recovery();});
+        add(ErrorMode, recover, AllOk, recovery);
     }
 
     // States
@@ -148,7 +154,12 @@ struct ErrorHsm : public Hsm<ErrorHsm>
     Event error, recover;
 
     // Actions
-    void recovery() { LOG(INFO) << "Recovering from Error:"; }
+    ActionFn recovery = [&](auto& e)
+    {
+        (void)e;
+
+        LOG(INFO) << "Recovering from Error:";
+    };
 };
 
 } // namespace tsmtest

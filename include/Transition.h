@@ -7,8 +7,8 @@
 #include <unordered_map>
 namespace tsm {
     
-using ActionFn = std::function<void ()>;
-using GuardFn = std::function<bool ()>;
+using ActionFn = std::function<void (Event const& e)>;
+using GuardFn = std::function<bool (Event const& e)>;
 
 template<typename FsmDef>
 struct StateTransitionTableT
@@ -27,7 +27,7 @@ struct StateTransitionTableT
             bool transitioned = false;
 
             // Evaluate guard if it exists
-            bool result = guard && guard();
+            bool result = guard && guard(e);
 
             if (!guard || result) {
                 // Perform entry and exit actions in the doTransition function.
@@ -36,7 +36,7 @@ struct StateTransitionTableT
 
                 hsm->getCurrentState()->onExit(e);
                 if (action) {
-                    action();
+                    action(e);
                 }
                 hsm->setCurrentState(&toState);
                 this->toState.onEntry(e);
